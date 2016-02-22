@@ -421,6 +421,8 @@ class CommandOut:
     def __cmd(self, cmd):
         '''Get the gromacs command according the precision.'''
         precision = self.secs['general']['precision']
+        # adjust for new gromacs
+        cmd = "gmx " + cmd
         if precision[:3] == 'mpi':
             cmd += '_mpi'
         if precision[-6:] == 'double':
