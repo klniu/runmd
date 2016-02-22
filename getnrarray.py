@@ -6,6 +6,8 @@
 
 import sys
 
+print("用法：getnrarray.py 分子数量 分子内原子个数 [从1开始的原子索引]")
+print("e.g. getnrarray.py 3 57 [48,23]")
 molsNum = int(sys.argv[1])
 atomsNum = int(sys.argv[2])
 atomIndex = eval(sys.argv[3])
