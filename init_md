@@ -1,0 +1,41 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+pwd
+mkdir ../result
+rm -r ../result/*
+rm *.mdp
+rm *_ass
+rm ../m[1-9]*
+rm ../md*
+rm ../\#*
+rm ../ener*
+rm ../*.tpr
+rm ../*.trr
+rm ../*.edr
+rm ../*.ndx
+rm ../*.log
+rm ../*.xtc
+rm ../*.gro
+rm ../*.mdp
+rm *.mdp
+rm ../*.cpt
+rm ../*.pdb
+rm ../*~
+rm ./*~
+rm ../*.itp
+mdtool.py -i configure.ini -t -c commands -m -a
+mv -v commands ../
+chmod +x ../commands
+mv -v *_ass ../result
+chmod +x ../result/*_ass
+mv -v m0.top ../
+# for i in ../result/*_ass
+# do
+#    dirName=`basename $i _ass`
+#    mkdir ../result/$dirName
+# done
+cp -v pack/m0.pdb ../
+cp -v pack/m.pdb ../
+cp -v pack/*.itp ../
+pause
+exit 0
