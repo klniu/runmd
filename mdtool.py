@@ -65,16 +65,16 @@ class ConfigReader(configparser.ConfigParser):
                 nsteps
                 continuation
                 tcoupl
-                tau_t
-                ref_t
+                tau-t
+                ref-t
                 gen_vel
                 [gen_temp]
                 ...
             npt(dict):
                 nvt(dict) +
                 pcoupl
-                tau_p
-                ref_p
+                tau-p
+                ref-p
                 compressibility
                 ...
 
@@ -99,7 +99,7 @@ class ConfigReader(configparser.ConfigParser):
         except configparser.DuplicateSectionError:
             fail('Error: Section Duplicate, please check ini file.')
         except configparser.DuplicateOptionError:
-            fail('Error: Key DuplicateKey, please check ini file.')
+            fail('Error: Key DuplicateKey, please check ini file.' + configparser.DuplicateOptionError.args)
         except:
             fail('Read configuration file Error.')
         self.__check_ini()
@@ -306,20 +306,20 @@ class ConfigReader(configparser.ConfigParser):
         Initialize and check the npt keys&values in mds
         '''
         pcoupltype = self[section].get('pcoupltype')
-        # the value_num of tau_p, ref_p, compressibility
-        value_num = tuple(len(self[section].get(key, '').split()) for key in ('compressibility', 'ref_p', 'tau_p'))
-        if value_num.count(value_num[0]) != 3:
-            fail('The number of values of tau_p, ref_p, compressibility should be equal in [{}] section.'.format(section))
+        # the value_num of tau-p, ref-p, compressibility
+        value_num = tuple(len(self[section].get(key, '').split()) for key in ('compressibility', 'ref-p'))
+        if value_num.count(value_num[0]) != 2:
+            fail('The number of values of tau-p, ref-p, compressibility should be equal in [{}] section.'.format(section))
         num = value_num[0]
 
         if not pcoupltype in ('semiisotropic', 'isotropic', 'anisotropic', 'surface-tension'):
             fail('The pcoupltype should be one of the semiisotropic, isotropic, anisotropic, surface-tension in [{}] section.'.format(section))
         elif pcoupltype.lower() == 'isotropic' and num != 1:
-            fail('When pcoupltype is isotropic , there should be only 1 values of tau_p, ref_p, compressibility in [{}] section.'.format(section))
+            fail('When pcoupltype is isotropic , there should be only 1 values of tau-p, ref-p, compressibility in [{}] section.'.format(section))
         elif (pcoupltype.lower() == 'semiisotropic' or pcoupltype.lower() == 'surface-tension') and num != 2:
-            fail('When pcoupltype is semiisotropic or surface-tension, there should be 2 values of tau_p, ref_p, compressibility in [{}] section.'.format(section))
+            fail('When pcoupltype is semiisotropic or surface-tension, there should be 2 values of tau-p, ref-p, compressibility in [{}] section.'.format(section))
         elif pcoupltype.lower() == 'anisotropic' and num != 6:
-            fail('When pcoupltype is semiisotropic, there should be 6 values of tau_p, ref_p, compressibility in [{}] section.'.format(section))
+            fail('When pcoupltype is semiisotropic, there should be 6 values of tau-p, ref-p, compressibility in [{}] section.'.format(section))
 
     def __init_mds_ext(self, sec):
         '''
@@ -346,7 +346,7 @@ class ConfigReader(configparser.ConfigParser):
         Initialize and check the common keys&values in ems and mds
         '''
         sec = self.mds[section]
-        needed_option = ('nsteps', 'continuation', 'tcoupl', 'tau_t', 'ref_t', 'gen_vel')
+        needed_option = ('nsteps', 'continuation', 'tcoupl', 'tau-t', 'ref-t', 'gen_vel')
         for option in needed_option:
             if not self.has_option(section, option):
                 fail('There is no {0} option in [{1}] section.'.format(option, section))
@@ -370,7 +370,7 @@ class ConfigReader(configparser.ConfigParser):
             except ValueError:
                 fail('You must supply a proper value of gen_temp in [{0}] section.'.format(section))
 
-        # handle tc_grps tau_t ref_t
+        # handle tc_grps tau-t ref-t
         residures = list(self.secs['component']['residures'][:])
         if 'SOL' in residures:
             residures.remove('SOL')
@@ -382,8 +382,8 @@ class ConfigReader(configparser.ConfigParser):
                 water_ions_group = 'SOL'
             residures.append(water_ions_group)
         self.mds[section]['tc-grps'] = ' '.join(residures)
-        self.mds[section]['tau_t'] = ((self.mds[section]['tau_t'] + ' ') * len(residures)).strip()
-        self.mds[section]['ref_t'] = ((self.mds[section]['ref_t'] + ' ') * len(residures)).strip()
+        self.mds[section]['tau-t'] = ((self.mds[section]['tau-t'] + ' ') * len(residures)).strip()
+        self.mds[section]['ref-t'] = ((self.mds[section]['ref-t'] + ' ') * len(residures)).strip()
         if 'annealing_temp' in self.mds[section]:
             note('The tc-grps in {} section is {}. Please adjust your parameters properly. e.g. annealing_temp'.format(section, self.mds[section]['tc-grps']))
 
@@ -643,7 +643,7 @@ class CommandOut:
         last_sec = keys[keys.index(sec) - 1] if keys.index(sec) > 0 else None
 
         mdrun = self.__cmd('mdrun')
-        g_tune_pme = self.__cmd('g_tune_pme')
+        g_tune_pme = self.__cmd('tune_pme')
         tpr = sec + '.tpr'
 
         nodes = self.secs['general']['nodes']
@@ -666,7 +666,7 @@ class CommandOut:
         count = len(self.mds[sec]['mail_results'])
         if count > 0:
             for index, ener in enumerate(self.mds[sec]['mail_results']):
-                self.__write('result{0}=`echo "{1}"| {2} -f {3}.edr -o /tmp/energy.xvg|grep "{4}"`;'.format(index, ener, self.__cmd('g_energy'), sec, ener.replace('*', r'\*')))
+                self.__write('result{0}=`echo "{1}"| {2} -f {3}.edr -o /tmp/energy.xvg|grep "{4}"`;'.format(index, ener, self.__cmd('energy'), sec, ener.replace('*', r'\*')))
             self.__write(r'echo -e "I am `hostname`. Of the simulation "{}" the section {} is just finished at `date +"%Y-%m-%d %H:%M"`. The energy results are as following: \\n'.format(self.secs['general']['title'], sec))
             for i in range(count):
                 self.__write(r'${result%s}\\n' % i)
@@ -741,7 +741,7 @@ class AnalysisOut:
             fail('{}. The nstxtcout in [{}] section must be integer.'.format(err, sec))
 
         # Gromacs programm
-        g_energy, g_rms, g_density, g_rdf, trjconv = (self.__cmd(i) for i in ("g_energy", "g_rms", "g_density", "g_rdf", "trjconv"))
+        g_energy, g_rms, g_density, g_rdf, trjconv = (self.__cmd(i) for i in ("energy", "rms", "density", "rdf", "trjconv"))
 
         # file name for analysis
         gro, edr, tpr, trr = (sec + i for i in ("gro", "edr", "tpr", "trr"))
