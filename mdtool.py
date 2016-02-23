@@ -664,7 +664,8 @@ class CommandOut:
     def __mail_energy_result(self, sec):
         '''mail md energy analysising result to email which is in [general] section.'''
         count = len(self.mds[sec]['mail_results'])
-        if count > 0:
+        emailsNum = len(self.secs['general']['email'])
+        if count > 0 and emailsNum > 0:
             for index, ener in enumerate(self.mds[sec]['mail_results']):
                 self.__write('result{0}=`echo "{1}"| {2} -f {3}.edr -o /tmp/energy.xvg|grep "{4}"`;'.format(index, ener, self.__cmd('energy'), sec, ener.replace('*', r'\*')))
             self.__write(r'echo -e "I am `hostname`. Of the simulation "{}" the section {} is just finished at `date +"%Y-%m-%d %H:%M"`. The energy results are as following: \\n'.format(self.secs['general']['title'], sec))
@@ -672,8 +673,6 @@ class CommandOut:
                 self.__write(r'${result%s}\\n' % i)
             if len(self.secs['general']['email']) > 0:
                 self.__write('"| mutt -s "Energy Result" %s > /dev/null;echo "Finished!"\n' % self.secs['general']['email'])
-            else:
-                Warning('Using mailing result you must provide a email address in [general] section.\n')
 
     def __exec_analysis(self, sec):
         '''Execute the analysis script after md process.'''
