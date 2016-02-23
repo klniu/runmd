@@ -740,10 +740,10 @@ class AnalysisOut:
             fail('{}. The nstxtcout in [{}] section must be integer.'.format(err, sec))
 
         # Gromacs programm
-        g_energy, g_rms, g_density, g_rdf, trjconv = (self.__cmd(i) for i in ("energy", "rms", "density", "rdf", "trjconv"))
+        g_energy, g_rms, g_density, g_rdf, trjconv = (self.__cmd(i) for i in ("gmx energy", "gmx rms", "gmx density", "gmx rdf", "gmx trjconv"))
 
         # file name for analysis
-        gro, edr, tpr, trr = (sec + i for i in ("gro", "edr", "tpr", "trr"))
+        gro, edr, tpr, trr = (sec + i for i in (".gro", ".edr", ".tpr", ".trr"))
 
         # Begin outputing
         self.__write(ass, '#!/bin/bash', 'w')
