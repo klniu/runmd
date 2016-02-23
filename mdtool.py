@@ -456,8 +456,8 @@ class CommandOut:
         for i in self.mds.keys():
             md_type = self.mds[i]['type']
             if md_type == 'ext':
-                # tpbconv
-                self.__tpbconv(i)
+                # convert-tpr
+                self.__convert_tpr(i)
             else:
                 # grompp
                 self.__grompp(i)
@@ -545,16 +545,16 @@ class CommandOut:
             self.__write(make_ndx_cmd + '\n')
             self.__write(genrestr_cmd + '\n')
 
-    def __tpbconv(self, sec):
-        '''Output tpbconv command for ext'''
+    def __convert_tpr(self, sec):
+        '''Output convert-tpr command for ext'''
         tpr = sec + '.tpr'
-        tpbconv = self.__cmd('tpbconv')
+        convert_tpr = self.__cmd('convert-tpr')
         time = self.mds[sec]['time']
         mds = self.secs['md']['mds']
         last_sec = mds[mds.index(sec) - 1] if mds.index(sec) > 0 else None
         last_tpr = last_sec + '.tpr'
-        tpbconv_cmd = '{} -s {} -extend {} -o {}'.format(tpbconv, last_tpr, time, tpr)
-        self.__write(tpbconv_cmd + '\n')
+        convert_tpr_cmd = '{} -s {} -extend {} -o {}'.format(convert_tpr, last_tpr, time, tpr)
+        self.__write(convert_tpr_cmd + '\n')
 
     def __grompp(self, sec):
         '''Output grompp command.'''
