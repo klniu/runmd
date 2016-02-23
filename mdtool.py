@@ -777,7 +777,7 @@ fi'''.format(self.ndx))
         for_groups = ' '.join(groups)
         get_nr = '''for i in {}
 do
-    eval $i=`getnr.py $i {}`
+    eval $i=`getnr.py {} $i `
     if (( ${}!i{} < 0 ))
     then
         echo "The nr of group $i <0. Please check the residures and rdf in configuration file."
